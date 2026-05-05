@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Geocoding</title>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 600px; margin: 0 auto; }
+        input, button { padding: 10px; margin: 5px; width: 100%; }
+        pre { background: #f0f0f0; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        .result { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Test Address to Coordinates</h1>
+    <input type="text" id="address" placeholder="Enter address (e.g., Kampala, Uganda)" value="Kampala, Uganda">
+    <button onclick="geocode()">Get Coordinates</button>
+    <div class="result">
+        <h3>Result:</h3>
+        <pre id="result">Click the button to test...</pre>
+    </div>
+
+    <script>
+        async function geocode() {
+            const address = document.getElementById('address').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`
+                );
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    resultDiv.textContent = JSON.stringify({
+                        address: address,
+                        latitude: data[0].lat,
+                        longitude: data[0].lon,
+                        full_name: data[0].display_name
+                    }, null, 2);
+                } else {
+                    resultDiv.textContent = 'Address not found';
+                }
+            } catch (error) {
+                resultDiv.textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

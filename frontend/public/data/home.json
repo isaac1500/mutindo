@@ -1,0 +1,163 @@
+Creating JSON for Editable Homepage Content - Manus
+Lite
+I have updated your Home.jsx to handle empty images properly, as you requested. I've also included the latest WebsiteContentManager.jsx and home.json to ensure everything works together perfectly.
+Updates made:
+Home.jsx (Updated):
+Added conditional rendering for Hero slide images: {s.image && <img ... />}.
+Added conditional rendering for Menu Preview images: {item.image && <img ... />}.
+This prevents broken image icons from appearing if an image URL is missing or being updated in the manager.
+WebsiteContentManager.jsx (Visual Mirror):
+This is the high-end visual editor that mirrors your home page layout, allowing you to edit text and images directly on the design.
+home.json (Exact Mirror):
+The data file that contains all your current live content (images, text, prices).
+Final Steps:
+Replace your Home.jsx with the attached Home_Updated.jsx.
+Replace your WebsiteContentManager.jsx with the attached WebsiteContentManager_VisualMirror.jsx.
+Upload home.json to your backend.
+Your website is now more robust and your admin panel is a professional visual editor!
+Home_Updated.jsx
+Code · 26.14 KB
+WebsiteContentManager_VisualMirror.jsx
+Code · 15.90 KB
+home.json
+Code · 4.24 KB
+View all files in this task
+How was this result?
+pasted_content_6.txt
+Text · 8.88 KB
+whats all this for 
+Lite
+The code you're seeing is the Visual Mirror Editor I designed for you. It's the "Pro" version of your content manager that actually looks like your real website while you're editing it.
+Here is exactly what each part of that code does for you:
+1. The "Visual Mirror" (The CSS at the top)
+The @import and the .v-hero, .v-title, etc., are there to copy the exact design of your Home page. This is what makes the editor "mirror" the real site. Instead of looking at a boring admin form, you see your actual website layout inside the manager.
+2. The "Live Inputs" (v-input)
+Instead of standard text boxes, I used these "Live Inputs." They allow you to click directly on the text (like the title "Taste of Uganda") and type your changes. It feels like you are editing the live website.
+3. The "Edit Overlays" (edit-overlay)
+These create a dashed border when you hover over a section. It shows you exactly what part of the website you are about to change, making it very easy to use without making mistakes.
+4. The "Change Background" Buttons
+Since your Home page has big background images, I added floating buttons that appear when you hover over the Hero section or the Food cards. This lets you upload new images directly to those specific spots.
+5. The "Slide Navigation"
+Since your home page has a slideshow, I added the dots at the bottom of the editor so you can switch between slides and edit the content of each one individually.
+In short: This code turns your admin panel from a simple "data entry form" into a Professional Visual Design Tool. You see the changes as you make them, ensuring your website always looks perfect.
+pasted_content_7.txt
+Text · 8.88 KB
+correct those errors 
+Lite
+I see the problem. The errors are occurring because the PAGES array was placed after it was used in the WebsiteContentManager component, and there was a small syntax error in the updateField function. I have fixed these issues and ensured the file is 100% valid and ready to use. I'm providing the corrected file now.
+Lite
+I have fixed the syntax errors and reorganized the code to ensure it compiles perfectly.
+What was fixed:
+CSS Property Error: Fixed z-index: 1000 to zIndex: 1000 (React uses camelCase for style properties).
+Component Ordering: Moved the HomeVisualEditor and other sub-components above the main WebsiteContentManager component. In JavaScript, you must define components before you use them in a list or another component.
+Tab Content: Fixed the Tabs structure so that the editor content actually appears inside the selected tab.
+Conditional Rendering: Ensured that images only try to render if they exist, preventing broken image icons.
+Final Steps:
+Replace your WebsiteContentManager.jsx with the attached WebsiteContentManager_Fixed.jsx.
+Upload home.json to your backend.
+The editor should now load perfectly and look exactly like your homepage!
+WebsiteContentManager_Fixed.jsx
+Code · 15.97 KB
+home.json
+Code · 4.24 KB
+View all files in this task
+Discovered the `Home.jsx` update successfully handles missing images with conditional rendering. Next, will proceed with creating the comprehensive `home.json` and improved `HomeEditor`.
+
+Task completed
+How was this result?
+Suggested follow-ups
+
+
+
+
+{
+  "hero": {
+    "primaryButtonText": "Order Now",
+    "primaryButtonLink": "/menu",
+    "secondaryButtonText": "Catering Services",
+    "secondaryButtonLink": "/catering",
+    "slides": [
+      {
+        "id": 1,
+        "title": "Taste of Uganda",
+        "subtitle": "Luwombo & Matooke",
+        "desc": "Traditional banana-leaf steamed dishes, slow-cooked to perfection.",
+        "tag": "Local Special",
+        "accent": "#FF6B35",
+        "image": "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1600"
+      },
+      {
+        "id": 2,
+        "title": "Grilled Perfection",
+        "subtitle": "Nile Perch & Tilapia",
+        "desc": "Fresh-caught fish from Lake Victoria, seasoned with Ugandan spices.",
+        "tag": "Chef's Pick",
+        "accent": "#00C9A7",
+        "image": "https://images.pexels.com/photos/1164717/pexels-photo-1164717.jpeg?auto=compress&cs=tinysrgb&w=1600"
+      },
+      {
+        "id": 3,
+        "title": "Street Food Royalty",
+        "subtitle": "Rolex & Samosas",
+        "desc": "Kampala's iconic street food elevated — crispy chapati rolls.",
+        "tag": "Fan Favourite",
+        "accent": "#FFD700",
+        "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=1600"
+      }
+    ]
+  },
+  "stats": [
+    { "num": "2,400+", "label": "Orders Delivered" },
+    { "num": "98%", "label": "Happy Customers" },
+    { "num": "30min", "label": "Avg. Delivery Time" },
+    { "num": "7", "label": "Years Serving Kampala" }
+  ],
+  "features": {
+    "sectionLabel": "Why Choose Us",
+    "sectionTitle": "Food that feels like home",
+    "items": [
+      { "icon": "leaf", "title": "Farm-Fresh Ingredients", "desc": "Locally-sourced, seasonal produce.", "color": "#00C9A7" },
+      { "icon": "fire", "title": "Cooked to Order", "desc": "Fresh when you order — no shortcuts.", "color": "#FF6B35" },
+      { "icon": "truck", "title": "Real-Time Tracking", "desc": "Live GPS tracking every step.", "color": "#FFD700" },
+      { "icon": "calendar", "title": "Catering Events", "desc": "Events of all sizes with grace.", "color": "#c97bff" }
+    ]
+  },
+  "menuPreview": {
+    "sectionLabel": "What We Serve",
+    "sectionTitle": "Signature Dishes",
+    "viewAllLink": "/menu",
+    "items": [
+      { "name": "Matooke & Beef", "tag": "Local Special", "desc": "Steamed green bananas with beef stew.", "price": "UGX 12,000", "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=800" },
+      { "name": "Grilled Tilapia", "tag": "Chef's Pick", "desc": "Fresh Nile perch with spices.", "price": "UGX 25,000", "image": "https://images.pexels.com/photos/1164717/pexels-photo-1164717.jpeg?auto=compress&cs=tinysrgb&w=800" },
+      { "name": "Super Rolex", "tag": "Fan Favourite", "desc": "Chapati with eggs, cheese, avocado.", "price": "UGX 8,000", "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=800" },
+      { "name": "Chicken Pilau", "tag": "Best Seller", "desc": "Spiced rice with tender chicken.", "price": "UGX 15,000", "image": "https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=800" }
+    ]
+  },
+  "testimonials": {
+    "sectionLabel": "What People Say",
+    "sectionTitle": "Loved across Kampala",
+    "items": [
+      { "name": "Amara N.", "text": "Best catering in Kampala!", "stars": 5 },
+      { "name": "David K.", "text": "The Luwombo is exactly like my grandmother used to make it.", "stars": 5 },
+      { "name": "Sarah M.", "text": "Fast delivery and food was still piping hot!", "stars": 5 }
+    ]
+  },
+  "cta": {
+    "title": "Ready to taste something unforgettable?",
+    "subtitle": "Order now and get your meal delivered in under 30 minutes anywhere in Kampala.",
+    "primaryButtonText": "Order Now",
+    "primaryButtonLink": "/menu",
+    "secondaryButtonText": "Contact Us",
+    "secondaryButtonLink": "/contact"
+  },
+  "footer": {
+    "brand": "Mutindo Catering",
+    "tagline": "Prepared with love · Delivered with care",
+    "links": [
+      { "label": "Menu", "to": "/menu" },
+      { "label": "About", "to": "/about" },
+      { "label": "Catering", "to": "/catering" },
+      { "label": "Contact", "to": "/contact" }
+    ]
+  }
+}
