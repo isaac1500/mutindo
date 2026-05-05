@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const dotenv = require('dotenv');
 const path = require('path');
+const http = require('http');
 
 // Load environment variables
 dotenv.config();
@@ -18,9 +19,9 @@ const userRoutes = require('./routes/users');
 const riderRoutes = require('./routes/riders');
 const galleryRoutes = require('./routes/gallery');
 const testimonialsRoutes = require('./routes/testimonials');
-const imagesRoutes = require('./routes/images'); // Added images routes
-const contentRoutes = require('./routes/content'); // Added content routes
-const uploadRoutes = require('./routes/upload'); // Added upload routes
+const imagesRoutes = require('./routes/images');
+const contentRoutes = require('./routes/content');
+const uploadRoutes = require('./routes/upload');
 
 // Initialize Express app
 const app = express();
@@ -30,10 +31,15 @@ const { db } = require('./config/firebase');
 const cloudinary = require('./config/cloudinary');
 const { authenticate } = require('./middleware/auth');
 
+// Get CORS origin from environment variable (Railway will set this)
+const CORS_ORIGINS = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.split(',')
+  : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'];
+
 // Middleware
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
+  origin: CORS_ORIGINS,
   credentials: true
 }));
 app.use(express.json());
@@ -42,11 +48,13 @@ app.use(express.urlencoded({ extended: true }));
 // Static files for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Request logging middleware
-app.use((req, res, next) => {
-  console.log(new Date().toISOString() + ' - ' + req.method + ' ' + req.path);
-  next();
-});
+// Request logging middleware (only in development)
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    console.log(new Date().toISOString() + ' - ' + req.method + ' ' + req.path);
+    next();
+  });
+}
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -75,9 +83,9 @@ app.get('/api', (req, res) => {
       users: '/api/users',
       riders: '/api/riders',
       chat: '/api/chat/:orderId',
-      images: '/api/images', // Added images endpoint
-      content: '/api/content', // Added content endpoint
-      upload: '/api/upload' // Added upload endpoint
+      images: '/api/images',
+      content: '/api/content',
+      upload: '/api/upload'
     }
   });
 });
@@ -93,9 +101,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/riders', riderRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/testimonials', testimonialsRoutes);
-app.use('/api/images', imagesRoutes); // Added images routes
-app.use('/api/content', contentRoutes); // Added content routes
-app.use('/api/upload', uploadRoutes); // Added upload routes
+app.use('/api/images', imagesRoutes);
+app.use('/api/content', contentRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // ============ CHAT ROUTES ============
 // Get chat messages for an order
@@ -104,7 +112,6 @@ app.get('/api/chat/:orderId', authenticate, async (req, res) => {
     const { orderId } = req.params;
     console.log('📨 GET /api/chat/' + orderId);
     
-    // Verify user has access to this order
     const orderDoc = await db.collection('orders').doc(orderId).get();
     if (!orderDoc.exists) {
       return res.status(404).json({ success: false, message: 'Order not found' });
@@ -115,7 +122,6 @@ app.get('/api/chat/:orderId', authenticate, async (req, res) => {
       return res.status(403).json({ success: false, message: 'Access denied' });
     }
     
-    // Get messages from Firebase
     const messagesSnapshot = await db.collection('chat_messages')
       .where('orderId', '==', orderId)
       .orderBy('timestamp', 'asc')
@@ -144,7 +150,6 @@ app.post('/api/chat/:orderId', authenticate, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Message cannot be empty' });
     }
     
-    // Verify user has access
     const orderDoc = await db.collection('orders').doc(orderId).get();
     if (!orderDoc.exists) {
       return res.status(404).json({ success: false, message: 'Order not found' });
@@ -155,12 +160,10 @@ app.post('/api/chat/:orderId', authenticate, async (req, res) => {
       return res.status(403).json({ success: false, message: 'Access denied' });
     }
     
-    // Determine sender role
     let senderRole = 'customer';
     if (req.user.role === 'admin') senderRole = 'admin';
     else if (order.riderId === req.userId) senderRole = 'rider';
     
-    // Create message in Firebase
     const messageData = {
       orderId,
       senderId: req.userId,
@@ -173,7 +176,6 @@ app.post('/api/chat/:orderId', authenticate, async (req, res) => {
     
     const docRef = await db.collection('chat_messages').add(messageData);
     
-    // Update order's last message
     await db.collection('orders').doc(orderId).update({
       lastMessage: message.trim(),
       lastMessageAt: new Date().toISOString(),
@@ -294,4 +296,5 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Export app for server.js to use
 module.exports = app;

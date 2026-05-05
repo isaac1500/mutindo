@@ -1,23 +1,12 @@
 const admin = require('firebase-admin');
-const path = require('path');
 
 // Initialize Firebase Admin SDK
-let messaging = null;
+let db, auth, messaging = null;
 
-try {
-  // Try to load the service account file
-  const serviceAccount = require('../firebase-service-account.json');
-  
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-  
-  messaging = admin.messaging();
-  console.log('✅ Firebase Admin initialized successfully with FCM');
-} catch (error) {
-  console.error('❌ Error initializing Firebase Admin:', error.message);
-  // Fallback for development if file doesn't exist
-  if (process.env.FIREBASE_PRIVATE_KEY) {
+// Check if running on Railway (production with environment variables)
+if (process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL) {
+  try {
+    // Use environment variables (Railway)
     admin.initializeApp({
       credential: admin.credential.cert({
         projectId: process.env.FIREBASE_PROJECT_ID,
@@ -27,15 +16,37 @@ try {
     });
     messaging = admin.messaging();
     console.log('✅ Firebase Admin initialized from environment variables with FCM');
-  } else {
-    throw error;
+  } catch (error) {
+    console.error('❌ Error initializing Firebase from env:', error.message);
+  }
+} else {
+  // Local development - try to use service account file
+  try {
+    const serviceAccount = require('../firebase-service-account.json');
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    messaging = admin.messaging();
+    console.log('✅ Firebase Admin initialized from service account file with FCM');
+  } catch (error) {
+    console.error('❌ Error initializing Firebase from file:', error.message);
+    console.log('⚠️ Firebase will not be available - check your credentials');
   }
 }
 
-// Initialize Firestore
-const db = admin.firestore();
-
-// Initialize Auth
-const auth = admin.auth();
+// Initialize services if admin is initialized
+if (admin.apps.length > 0) {
+  db = admin.firestore();
+  auth = admin.auth();
+  if (!messaging) {
+    try {
+      messaging = admin.messaging();
+    } catch (e) {
+      console.log('⚠️ FCM not available');
+    }
+  }
+} else {
+  console.log('❌ Firebase Admin failed to initialize');
+}
 
 module.exports = { admin, db, auth, messaging };

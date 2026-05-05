@@ -1,11 +1,6 @@
 ﻿require('dotenv').config();
 const app = require('./app');
 const http = require('http');
-const dotenv = require('dotenv');
-const { initSocket } = require('./config/socket');
-
-// Load environment variables
-dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 
@@ -13,29 +8,29 @@ const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
 
 // Initialize Socket.IO
+const { initSocket } = require('./config/socket');
 const io = initSocket(server);
 
-// ===== ADD CONTENT ROUTES HERE =====
-const contentRoutes = require('./routes/contentRoutes');
-app.use('/api/content', contentRoutes);
-// ===================================
+// Make io accessible to routes
+app.set('io', io);
 
 // Start server
 server.listen(PORT, () => {
-  console.log('=' .repeat(50));
+  console.log('==================================================');
   console.log('🚀 Mutindo Catering Services Server Started');
-  console.log('=' .repeat(50));
-  console.log('📡 Server running on: http://localhost:' + PORT);
-  console.log('🏥 Health check: http://localhost:' + PORT + '/health');
-  console.log('🔧 Environment: ' + (process.env.NODE_ENV || 'development'));
-  console.log('🔌 Socket.IO: Ready for real-time connections');
-  console.log('=' .repeat(50));
-  console.log('\n✅ Services Status:');
+  console.log('==================================================');
+  console.log(`📡 Server running on port: ${PORT}`);
+  console.log(`🏥 Health check: /health`);
+  console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔌 Socket.IO: Ready for real-time connections`);
+  console.log('==================================================');
+  console.log('');
+  console.log('✅ Services Status:');
   console.log('   - Firebase: Initialized');
   console.log('   - Cloudinary: Configured');
   console.log('   - Socket.IO: Active');
   console.log('   - Server: Ready for connections');
-  console.log('=' .repeat(50));
+  console.log('==================================================');
 });
 
 // Graceful shutdown
@@ -54,3 +49,5 @@ process.on('SIGINT', () => {
     process.exit(0);
   });
 });
+
+module.exports = { server, io };
